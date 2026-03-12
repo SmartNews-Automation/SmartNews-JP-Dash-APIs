@@ -1,0 +1,11 @@
+pytz
+pandas
+requests
+google-cloud-bigquery
+google-auth
+python-dotenv
+urllib3
+requests-oauthlib
+pyarrow
+pandas-gbq
+bs4
