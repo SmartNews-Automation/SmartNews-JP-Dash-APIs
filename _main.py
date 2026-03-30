@@ -56,6 +56,9 @@ def Smaato():
         Smaato_data_Prebid = fetch_Smaato_data(Smaato_creds['Prebid'],start_date,end_date)
         push_data_to_bq(data=Smaato_data_Prebid, table="jp_smaato_prebid_lastxdays")
 
+        Smaato_data_Nimbus = fetch_Smaato_data(Smaato_creds['Nimbus'],start_date,end_date)
+        push_data_to_bq(data=Smaato_data_Nimbus, table="jp_smaato_nimbus_lastxdays")
+
         print("✅12. Smaato  prebid Data Fetched and Pushed to BigQuery\n\n")
 
     except Exception as e:
