@@ -1,0 +1,70 @@
+name: run main.py
+
+on:
+  schedule:
+    - cron: '30 13 * * *'
+  workflow_dispatch:
+    # - cron: '45 3,4,5,6,7,8,9,10,11 * * 1' # At minute 45 past hour 3, 4, 5, 6, 7, 8, 9, 10, and 11 on Monday
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11' # install the python version needed
+
+      - name: Create creds.json from multi-line secret
+        run: |
+            cat <<EOF > creds.json
+            ${{ secrets.SSP_CREDS }}
+            EOF
+          
+      - name: install python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r req.txt
+
+      - name: execute py script # run main.py
+        run: python _main.py
+          
+      - name: Commit updated logs
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      
+          # Stage upload_log.log first to avoid conflict with pull
+          if [ -f upload_log.log ]; then
+            git add upload_log.log
+          fi
+      
+          # Commit any existing local changes (if any) to prep for rebase
+          git diff --cached --quiet || git commit -m "Temp commit before rebase"
+      
+          # Pull latest with rebase (should now succeed)
+          git pull origin main --rebase || true
+      
+          # After pull, add updated log again
+          if [ -f upload_log.log ]; then
+            git add upload_log.log
+          fi
+      
+          # Commit final log update if changes exist
+          git diff --cached --quiet || git commit -m "updated logs"
+          
+      - name: Stash uncommitted changes
+        run: git stash --include-untracked
+      - name: Pull latest changes
+        run: |
+          git pull origin main --rebase
+          
+      - name: push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
