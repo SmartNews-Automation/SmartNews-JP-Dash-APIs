@@ -10,6 +10,7 @@ from partners.Smaato import fetch_Smaato_data
 from partners.inmobi import fetch_inmobi_data
 from partners.medianet import fetch_medianet_data,token
 from partners.loopme import fetch_loopme_data
+from partners.liftoff import fetch_liftoff_data
 
 
 
@@ -124,6 +125,22 @@ def loopme_():
         failures_list.append("LoopMe")
         print(f"Error in LoopMe Data Fetching or Pushing: {e}")
 
+#-----------------------------------------    Liftoff - Nimbus   -----------------------------------------#
+
+def liftoff_():
+    try:
+        liftoff_creds = creds['liftoff_creds']
+
+        liftoff_data_nimbus = fetch_liftoff_data(liftoff_creds['nimbus'],start_date,end_date)
+
+        push_data_to_bq(data=liftoff_data_nimbus, table="jp_liftoff_nimbus_lastxdays")
+
+        print("liftoff nimbus  Data Fetched and Pushed to BigQuery\n\n")
+
+    except Exception as e:
+        failures_list.append("LoopMe")
+        print(f"Error in liftoff Data Fetching or Pushing: {e}")
+
 
 
 #-----------------------------------------   Summary   -----------------------------------------#
@@ -148,7 +165,8 @@ def main():
         ("Nimbus", nimbus_),
         ("Media.Net", medianet_),
         ("Smaato", Smaato),
-        ("LoopMe", loopme_)
+        ("LoopMe", loopme_),
+        ("Liftoff",liftoff_)
     ]
 
 
